@@ -49,9 +49,6 @@ public class MainWindow extends javax.swing.JFrame {
     
     private Map<String, Conv> loadedBuffer = new ConcurrentHashMap<>();
     
-    /**
-     * Creates new form MainWindow
-     */
     public MainWindow() {
         initComponents();
     }
@@ -235,7 +232,6 @@ public class MainWindow extends javax.swing.JFrame {
 
         jDialog2.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         jDialog2.setTitle("Export all options");
-        jDialog2.setMaximumSize(new java.awt.Dimension(680, 340));
         jDialog2.setMinimumSize(new java.awt.Dimension(680, 340));
 
         jLabel5.setText("Save to: ");
@@ -447,7 +443,7 @@ public class MainWindow extends javax.swing.JFrame {
 
             appearanceMenu.setText("Appearance");
 
-            motifStyle.setText("Cde/Motif");
+            motifStyle.setText("CDE/Motif");
             motifStyle.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     motifStyleActionPerformed(evt);
@@ -578,7 +574,7 @@ public class MainWindow extends javax.swing.JFrame {
         nimbusStyle.setEnabled(true);
         metalStyle.setEnabled(true);
         winStyle.setEnabled(windowsShouldBeEnabled);
-        changeStyle("Motif");
+        changeStyle("CDE/Motif");
     }
 
     private void gtkStyleActionPerformed(java.awt.event.ActionEvent evt) {
@@ -756,7 +752,7 @@ public class MainWindow extends javax.swing.JFrame {
         });
     }
 
-    
+	
     private javax.swing.JMenu appearanceMenu;
     private javax.swing.JMenuItem bmpExport;
     private javax.swing.JMenuItem bmpResave;
@@ -854,7 +850,8 @@ public class MainWindow extends javax.swing.JFrame {
     
     private void openSingle(){
         //Clear the map to prevent overloading, name collisions and so on. This deletes EVERYTHING that was loaded before
-        loadedBuffer.clear();
+        do loadedBuffer.clear(); 
+        while(!loadedBuffer.isEmpty());
         exportallButton.setEnabled(false);
         conlog("Opening file: " + baseBuffer.getAbsolutePath(), Color.blue);
         try {
@@ -898,7 +895,7 @@ public class MainWindow extends javax.swing.JFrame {
     }    
     
     
-    //NOT WORKING YET!
+	//NOT WORKING YET
     //Opens group of files using a user-defined name mask, that is being converted to a valid regular expression before opening files
     private void openGroup(String mask, String extension){
         //Clear the map to prevent overloading, name collisions and so on. This deletes EVERYTHING that was loaded before
@@ -912,7 +909,7 @@ public class MainWindow extends javax.swing.JFrame {
         if(baseFile.contains("/")) baseFile = baseFile.replaceAll("/", "\\");
         String baseFolder = baseFile.substring(0, baseFile.lastIndexOf("\\")+1);
         
-        //Setting up a regex
+		//Setting up a regex
         String regex = "";
         if(mask.contains("№")) {
             String regexBuffer = mask.replaceAll("№", "\\&d");
@@ -922,6 +919,7 @@ public class MainWindow extends javax.swing.JFrame {
         else regex = mask;
         if(extension.equals("Any")) regex += " *";
         else regex += ("."+extension.toLowerCase());
+		
         conlog("Group regex mask is "+regex);
         for(File f : new File(baseFolder).listFiles()){
             String filename = f.getName().toLowerCase();
@@ -955,7 +953,7 @@ public class MainWindow extends javax.swing.JFrame {
         if(neededRows != 0) cleanupTable(tmodel);
         
         if(neededRows < 0) {
-            for(int i = actualRows; i > actualRows + neededRows; i--) 
+            for(int i = actualRows-1; i >= actualRows + neededRows; i--) 
                 tmodel.removeRow(i);            
         }
         else if(neededRows > 0) {
@@ -979,7 +977,7 @@ public class MainWindow extends javax.swing.JFrame {
     
     
     public void addToBuffer(String s, Conv c){
-        loadedBuffer.put(s, c);
+        loadedBuffer.put(s, c);                
     }
     
     
@@ -1012,7 +1010,11 @@ public class MainWindow extends javax.swing.JFrame {
         fileChooser.setMultiSelectionEnabled(false);
         fileChooser.showSaveDialog(rootPane);       
         
-        File f = new File(jFileChooser1.getSelectedFile().getAbsolutePath() + Conv.FORMATS.get(format));
+        File sel = fileChooser.getSelectedFile();
+        
+        String selS = sel.getPath();
+        
+        File f = new File(selS + Conv.FORMATS.get(format));
         
         c.save(f);
         conlog("Saved image "+imageName+" as "+Conv.FORMATS.get(format).substring(1).toUpperCase()+" at "+f.getAbsoluteFile());
@@ -1094,10 +1096,12 @@ class ImageSaver implements Runnable {
 class BlankObserver implements ImageObserver {
 
     @Override
-    public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {		
+    public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
         return false;
     }
     
-}
-  
+}  
+
+    
+
 }
