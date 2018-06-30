@@ -825,8 +825,14 @@ public class MainWindow extends javax.swing.JFrame {
             
             //Nice and easy way to change the style in runtime
             SwingUtilities.updateComponentTreeUI(this);
+            SwingUtilities.updateComponentTreeUI(jDialog1);
+            SwingUtilities.updateComponentTreeUI(jDialog2);
+            SwingUtilities.updateComponentTreeUI(jFileChooser1);
+            SwingUtilities.updateComponentTreeUI(jFileChooser2);
             //Resize the form to fit all its components' size
             this.pack();
+            jDialog1.pack();
+            jDialog2.pack();
         } catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1084,7 +1090,8 @@ class ImageSaver implements Runnable {
     public void run() {
         convs.forEach((s, c) -> {
             c.convert(format);
-            c.save(new File(dir.getAbsolutePath() + "\\" + s));
+            int nameEnd = s.lastIndexOf(".");
+            c.save(new File(dir.getAbsolutePath() + "\\" + s.substring(nameEnd) + Conv.FORMATS.get(c.getImageFormat())));
         });
     }
     
