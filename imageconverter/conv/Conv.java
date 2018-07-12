@@ -1,6 +1,6 @@
 package imageconverter.conv;
 
-import java.awt.Toolkit;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +13,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import sun.awt.image.ToolkitImage;
+import javax.imageio.stream.ImageOutputStream;
+import javax.swing.ImageIcon;
 
 /**
  * @author Sonic
@@ -122,13 +123,20 @@ public class Conv {
         return cnst;
     }
     
-    //This fixes red images when reading JPEG with ImageIO
+    
     private void fixImage(){
         int type = currentImage.getType();
         System.out.println(type);
-        ToolkitImage img = (ToolkitImage) Toolkit.getDefaultToolkit().createImage(initialImage.getAbsolutePath()); //Read a toolkitimage
-        img.getHeight(); //Trigger creation of a bufferedimage
-        currentImage = img.getBufferedImage(); //It now doesn't return null!
+    }
+    
+    //Fix a BufferedImage bug, that causes the image to incorrectly apply red color filter to a correct image
+    //This happens when converting 4-channel image to 4-channel JPEG, which is written with alpha channel while most apps see it as CMYK image
+    //More details here: https://bugs.openjdk.java.net/browse/JDK-8041459
+    private void fixImageOnSave(){
+        BufferedImage bi = new BufferedImage(currentImage.getWidth(), currentImage.getHeight(), BufferedImage.TYPE_INT_RGB); //Create image of same size, but different type
+        Graphics2D g2d = bi.createGraphics();
+        g2d.drawImage(currentImage, 0, 0, null);
+        currentImage = bi;
     }
     
     /**
@@ -138,11 +146,13 @@ public class Conv {
      */
     
     public void resave(ConvConstants format){
+        if(currentFormat == ConvConstants.FORMAT_PNG && format == ConvConstants.FORMAT_JPEG) fixImageOnSave();
         String path = initialImage.getAbsolutePath();
         String b1 = path.substring(0, path.lastIndexOf("."));
         File savePath = new File(b1 + FORMATS.get(format));
         if(savePath.exists()) savePath.delete();
         try {
+            //ImageOutputStream ios = new ImageOutputStream(savePath);
             ImageIO.write(currentImage, FORMATS.get(format).substring(1), savePath);
         } catch (IOException ex) {
             Logger.getLogger(Conv.class.getName()).log(Level.SEVERE, null, ex);
@@ -156,6 +166,7 @@ public class Conv {
      */
     //Yeah, it says convert, while it just changes a variable
     public void convert(ConvConstants format){
+        if(currentFormat == ConvConstants.FORMAT_PNG && format == ConvConstants.FORMAT_JPEG) fixImageOnSave();
         if(format != ConvConstants.FORMAT_UNKNOWN) currentFormat = format;
     }
     
