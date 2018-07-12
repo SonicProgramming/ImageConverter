@@ -1,5 +1,6 @@
 package imageconverter.conv;
 
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import sun.awt.image.ToolkitImage;
 
 /**
  * @author Sonic
@@ -52,6 +54,7 @@ public class Conv {
      * @throws FileNotFoundException in case image could not be found.*
      * @throws UnsupportedImageFormatException if the image format could not be recognized *
      * @param imagePath The image to associate this Conv with. Must be one of the formats from ConvConstants. *
+     * 
      */
     public Conv(String imagePath) throws FileNotFoundException, UnsupportedImageFormatException{
         File f = new File(imagePath);
@@ -64,6 +67,7 @@ public class Conv {
      * 
      * @param img The image to associate this Conv with *
      * @param format The image format *
+     * With this constructor you can handle image opening process yourself. Useful if you use custom image readers.
      */
     public Conv(BufferedImage img, ConvConstants format){
         if(img != null && format != null)
@@ -77,6 +81,7 @@ public class Conv {
     
     private void openFile(File f) throws FileNotFoundException, UnsupportedImageFormatException{
         try {
+            initialImage = f;
             currentFormat = checkImageFormat(f);
             InputStream is = new FileInputStream(f);
             BufferedImage buf = ImageIO.read(is);
@@ -84,7 +89,7 @@ public class Conv {
             else throw new IOException();
             currentImage = buf;
             ready = true;
-            fixImage();
+            if(currentFormat == ConvConstants.FORMAT_JPEG) fixImage();
         } catch (IOException ex) {
             Logger.getLogger(Conv.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -117,9 +122,13 @@ public class Conv {
         return cnst;
     }
     
+    //This fixes red images when reading JPEG with ImageIO
     private void fixImage(){
         int type = currentImage.getType();
         System.out.println(type);
+        ToolkitImage img = (ToolkitImage) Toolkit.getDefaultToolkit().createImage(initialImage.getAbsolutePath()); //Read a toolkitimage
+        img.getHeight(); //Trigger creation of a bufferedimage
+        currentImage = img.getBufferedImage(); //It now doesn't return null!
     }
     
     /**
