@@ -670,6 +670,28 @@ public class MainWindow extends javax.swing.JFrame {
         Image img = c.getImage();
         int w = img.getWidth(new BlankObserver());
         int h = img.getHeight(new BlankObserver());
+        
+        //Big and ugly piece of code that checks if image exceeds the desktop pane and scales it to make iframe fit the pane
+        //Subtracting 25 and 30 from width and height respectively is neccesary because we want to make sure iframe's border will fit too
+        if(w > jDesktopPane2.getWidth() - 25 || h > jDesktopPane2.getHeight() - 30){
+            int imgDim, paneDim;
+            if(w >= h){
+                imgDim = w;
+                paneDim = jDesktopPane2.getWidth() - 25;
+            } else {
+                imgDim = h;
+                paneDim = jDesktopPane2.getHeight() - 30;
+            }
+            
+            double scale = ((double)paneDim)/imgDim;
+            int scalePercent = (int) (100 * scale);
+            int scaledW = (int) (w * (((double)scalePercent)/100));
+            int scaledH = (int) (h * (((double)scalePercent)/100));
+            img = img.getScaledInstance(scaledW, scaledH, Image.SCALE_SMOOTH);
+            h = scaledH;
+            w = scaledW;
+            iframe.setTitle(iframe.getTitle() + " (scaled to " + scalePercent + "%)");
+        }
         Rectangle rekt = new Rectangle();
         rekt.setSize(w, h);
         
