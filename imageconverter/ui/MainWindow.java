@@ -1024,7 +1024,7 @@ public class MainWindow extends javax.swing.JFrame {
         fileChooser.setFileFilter(new FileFilter(){
             @Override
             public boolean accept(File f) {
-                return f.getName().endsWith(Conv.FORMATS.get(format));
+                return f.getName().endsWith(Conv.FORMATS.get(format)) || f.isDirectory();
             }
 
             @Override
