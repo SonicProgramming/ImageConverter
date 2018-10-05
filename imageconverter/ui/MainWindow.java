@@ -919,9 +919,20 @@ public class MainWindow extends javax.swing.JFrame {
         File baseFolder = new File(baseFile.substring(0, baseFile.lastIndexOf(System.getProperty("file.separator"))+1));
                 
         //Filling up the open queue
-        openQueue.addAll(Arrays.asList(baseFolder.listFiles()));
+        
+        List<File> suitable = new ArrayList<>();
+        
+        for(File f : baseFolder.listFiles()){
+            if(f.getName().endsWith(".bmp") || f.getName().endsWith(".gif") || f.getName().endsWith(".jpg")
+                    || f.getName().endsWith(".jpeg") || f.getName().endsWith(".png") || f.getName().endsWith(".wbmp")) {
+                suitable.add(f);
+            }
+        }
+        
+        openQueue.addAll(suitable);
         
         //Opening
+        
         ImageLoader imgLoader = new ImageLoader(openQueue);
         Thread thr = new Thread(imgLoader);
         thr.start();   
