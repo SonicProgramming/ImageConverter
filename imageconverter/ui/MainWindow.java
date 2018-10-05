@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -49,12 +50,14 @@ public class MainWindow extends javax.swing.JFrame {
     
     private Map<String, Conv> loadedBuffer = new ConcurrentHashMap<>();
     
+    /**
+     * Creates new form MainWindow
+     */
     public MainWindow() {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
-	
+    @SuppressWarnings("unchecked")                        
     private void initComponents() {
 
         jDialog1 = new javax.swing.JDialog();
@@ -70,6 +73,7 @@ public class MainWindow extends javax.swing.JFrame {
         fileFormatBox = new javax.swing.JComboBox<>();
         openFilesButon = new javax.swing.JButton();
         maskCheckbox = new javax.swing.JCheckBox();
+        allFilesCheckbox = new javax.swing.JCheckBox();
         jFileChooser1 = new javax.swing.JFileChooser();
         jMenuItem3 = new javax.swing.JMenuItem();
         jDialog2 = new javax.swing.JDialog();
@@ -89,12 +93,6 @@ public class MainWindow extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         openButton = new javax.swing.JMenuItem();
-        jMenu1 = new javax.swing.JMenu();
-        bmpResave = new javax.swing.JMenuItem();
-        gifResave = new javax.swing.JMenuItem();
-        jpegResave = new javax.swing.JMenuItem();
-        pngResave = new javax.swing.JMenuItem();
-        wbmpResave = new javax.swing.JMenuItem();
         exportMenu = new javax.swing.JMenu();
         bmpExport = new javax.swing.JMenuItem();
         gifExport = new javax.swing.JMenuItem();
@@ -166,6 +164,9 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
+        allFilesCheckbox.setText("All files");
+        allFilesCheckbox.setEnabled(false);
+
         javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
         jDialog1Layout.setHorizontalGroup(
@@ -192,7 +193,10 @@ public class MainWindow extends javax.swing.JFrame {
                     .addGroup(jDialog1Layout.createSequentialGroup()
                         .addGroup(jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(maskCheckbox)
-                            .addComponent(isGroupCheckbox))
+                            .addGroup(jDialog1Layout.createSequentialGroup()
+                                .addComponent(isGroupCheckbox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(allFilesCheckbox)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -206,7 +210,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(isGroupCheckbox)
+                .addGroup(jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(isGroupCheckbox)
+                    .addComponent(allFilesCheckbox))
                 .addGap(6, 6, 6)
                 .addComponent(maskCheckbox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -365,25 +371,6 @@ public class MainWindow extends javax.swing.JFrame {
             });
             fileMenu.add(openButton);
 
-            jMenu1.setText("Save");
-
-            bmpResave.setText("BMP");
-            jMenu1.add(bmpResave);
-
-            gifResave.setText("GIF");
-            jMenu1.add(gifResave);
-
-            jpegResave.setText("JPEG");
-            jMenu1.add(jpegResave);
-
-            pngResave.setText("PNG");
-            jMenu1.add(pngResave);
-
-            wbmpResave.setText("WBMP");
-            jMenu1.add(wbmpResave);
-
-            fileMenu.add(jMenu1);
-
             exportMenu.setText("Export");
 
             bmpExport.setText("BMP");
@@ -527,9 +514,9 @@ public class MainWindow extends javax.swing.JFrame {
             );
 
             pack();
-        }
+        }                   
 
-    private void formWindowOpened(java.awt.event.WindowEvent evt) {
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {                                  
         String osname = System.getProperty("os.name");
         if(osname.contains("Windows")) {
             winStyle.setEnabled(true);
@@ -548,14 +535,19 @@ public class MainWindow extends javax.swing.JFrame {
                 if(f.isDirectory()) isGood = true;
                 else {
                     String name = f.getName();
-                    String extension = name.substring(name.lastIndexOf("."));
-                    switch(extension.toLowerCase()){
-                        case ".bmp": isGood = true; break;
-                        case ".gif": isGood = true; break;
-                        case ".jpg":
-                        case ".jpeg": isGood = true; break;
-                        case ".png": isGood = true; break;
-                        case ".wbmp": isGood = true; break;                        
+                    if(!name.contains(".")){
+                        isGood = false;                        
+                    } else { 
+                        String extension = name.substring(name.lastIndexOf("."));
+                        switch(extension.toLowerCase()){
+                            case ".bmp": isGood = true; break;
+                            case ".gif": isGood = true; break;
+                            case ".jpg":
+                            case ".jpeg": isGood = true; break;
+                            case ".png": isGood = true; break;
+                            case ".wbmp": isGood = true; break;   
+                            default:
+                        }
                     }
                 }
                 return isGood;
@@ -566,93 +558,97 @@ public class MainWindow extends javax.swing.JFrame {
                 return "Supported image formats (BMP, GIF, JPEG, PMG, WBMP)";
             }
         });
-    }
+    }                                 
 
-    private void motifStyleActionPerformed(java.awt.event.ActionEvent evt) {
+    private void motifStyleActionPerformed(java.awt.event.ActionEvent evt) {                                           
         motifStyle.setEnabled(false);
         gtkStyle.setEnabled(gtkShouldBeEnabled);
         nimbusStyle.setEnabled(true);
         metalStyle.setEnabled(true);
         winStyle.setEnabled(windowsShouldBeEnabled);
         changeStyle("CDE/Motif");
-    }
+    }                                          
 
-    private void gtkStyleActionPerformed(java.awt.event.ActionEvent evt) {
+    private void gtkStyleActionPerformed(java.awt.event.ActionEvent evt) {                                         
         motifStyle.setEnabled(true);
         gtkStyle.setEnabled(false);
         nimbusStyle.setEnabled(true);
         metalStyle.setEnabled(true);
         winStyle.setEnabled(windowsShouldBeEnabled);
         changeStyle("GTK+");
-    }
+    }                                        
 
-    private void nimbusStyleActionPerformed(java.awt.event.ActionEvent evt) {
+    private void nimbusStyleActionPerformed(java.awt.event.ActionEvent evt) {                                            
         motifStyle.setEnabled(true);
         gtkStyle.setEnabled(gtkShouldBeEnabled);
         nimbusStyle.setEnabled(false);
         metalStyle.setEnabled(true);
         winStyle.setEnabled(windowsShouldBeEnabled);
         changeStyle("Nimbus");
-    }
+    }                                           
 
-    private void metalStyleActionPerformed(java.awt.event.ActionEvent evt) {
+    private void metalStyleActionPerformed(java.awt.event.ActionEvent evt) {                                           
         motifStyle.setEnabled(true);
         gtkStyle.setEnabled(gtkShouldBeEnabled);
         nimbusStyle.setEnabled(true);
         metalStyle.setEnabled(false);
         winStyle.setEnabled(windowsShouldBeEnabled);
         changeStyle("Metal");
-    }
+    }                                          
 
-    private void winStyleActionPerformed(java.awt.event.ActionEvent evt) {
+    private void winStyleActionPerformed(java.awt.event.ActionEvent evt) {                                         
         motifStyle.setEnabled(true);
         gtkStyle.setEnabled(gtkShouldBeEnabled);
         nimbusStyle.setEnabled(true);
         metalStyle.setEnabled(true);
         winStyle.setEnabled(false);
         changeStyle("Windows");
-    }
+    }                                        
 
-    private void selectFileButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void selectFileButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                 
         jFileChooser1.setMultiSelectionEnabled(false);
         jFileChooser1.showOpenDialog(jDialog1);
         baseBuffer = jFileChooser1.getSelectedFile();
         jTextField1.setText(baseBuffer.getAbsolutePath());
         isGroupCheckbox.setEnabled(true);
         openFilesButon.setEnabled(true);
-    }
+    }                                                
 
-    private void isGroupCheckboxActionPerformed(java.awt.event.ActionEvent evt) {
+    private void isGroupCheckboxActionPerformed(java.awt.event.ActionEvent evt) {                                                
         if(baseBuffer.equals(new File(""))) {
             JOptionPane.showMessageDialog(rootPane, "Select a file first!", "Error!", JOptionPane.ERROR_MESSAGE);
             isGroupCheckbox.setSelected(false);
         } else {
             maskCheckbox.setEnabled(true);
+            allFilesCheckbox.setEnabled(true);
         }
-    }
+    }                                               
 
-    private void openFilesButonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void openFilesButonActionPerformed(java.awt.event.ActionEvent evt) {                                               
         jDialog1.setVisible(false);
         if(isGroupCheckbox.isSelected()) {
+            if(allFilesCheckbox.isSelected()){
+                
+            }
             if(maskCheckbox.isSelected()) openGroup(fileMaskField.getText(), fileFormatBox.getSelectedItem().toString());
             else openGroupLex();
         }
         else openSingle();
-    }
+    }                                              
 
-    private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {                                           
         jDialog1.setVisible(true);
-    }
+    }                                          
 
-    private void bmpExportActionPerformed(java.awt.event.ActionEvent evt) {
+    private void bmpExportActionPerformed(java.awt.event.ActionEvent evt) {                                          
         exportSingle(ConvConstants.FORMAT_BMP);
-    }
+    }                                         
 
-    private void gifExportActionPerformed(java.awt.event.ActionEvent evt) {
+    private void gifExportActionPerformed(java.awt.event.ActionEvent evt) {                                          
         exportSingle(ConvConstants.FORMAT_GIF);
-    }
+    }                                         
 
-    private void showLayersButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void showLayersButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                 
         //Pretty self-explanatory
         String imageName = layerTable.getValueAt(layerTable.getSelectedRow(), 0).toString();
         Conv c = loadedBuffer.get(imageName);
@@ -711,36 +707,37 @@ public class MainWindow extends javax.swing.JFrame {
         //Add the frame to JDesktopPane container and display it
         jDesktopPane2.add(iframe);
         iframe.setVisible(true);
-    }
+    }                                                
 
-    private void jpegExportActionPerformed(java.awt.event.ActionEvent evt) {
+    private void jpegExportActionPerformed(java.awt.event.ActionEvent evt) {                                           
         exportSingle(ConvConstants.FORMAT_JPEG);
-    }
+    }                                          
 
-    private void pngExportActionPerformed(java.awt.event.ActionEvent evt) {
+    private void pngExportActionPerformed(java.awt.event.ActionEvent evt) {                                          
         exportSingle(ConvConstants.FORMAT_PNG);
-    }
+    }                                         
 
-    private void wbmpExportActionPerformed(java.awt.event.ActionEvent evt) {
+    private void wbmpExportActionPerformed(java.awt.event.ActionEvent evt) {                                           
         exportSingle(ConvConstants.FORMAT_WBMP);
-    }
+    }                                          
 
-    private void maskCheckboxActionPerformed(java.awt.event.ActionEvent evt) {
+    private void maskCheckboxActionPerformed(java.awt.event.ActionEvent evt) {                                             
         if(maskCheckbox.isSelected()) {
             JOptionPane.showMessageDialog(jDialog1, "This feature is not currently available!", "Warning!", JOptionPane.WARNING_MESSAGE);
             maskCheckbox.setSelected(false);
         }
-    }
+    }                                            
 
-    private void exportallButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void exportallButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                
         jDialog2.setVisible(true);
-    }
+    }                                               
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
         jFileChooser2.showOpenDialog(jDialog2);
-    }
+        jTextField2.setText(jFileChooser2.getSelectedFile().getAbsolutePath());
+    }                                        
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {                                         
         File dir = jFileChooser2.getSelectedFile();
         String ext = "." + jComboBox1.getSelectedItem().toString().toLowerCase();
         Conv.FORMATS.forEach((c, s) -> {
@@ -749,7 +746,7 @@ public class MainWindow extends javax.swing.JFrame {
         });
         jDialog2.setVisible(false);
         exportGroup(format, dir,  loadedBuffer);
-    }
+    }                                        
 
     /**
      * @param args the command line arguments
@@ -760,7 +757,6 @@ public class MainWindow extends javax.swing.JFrame {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if (ImageConverter.WSTYLE_CURRENT.equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
@@ -773,11 +769,10 @@ public class MainWindow extends javax.swing.JFrame {
             conlog("Loaded");
         });
     }
-
-	
+                  
+    private javax.swing.JCheckBox allFilesCheckbox;
     private javax.swing.JMenu appearanceMenu;
     private javax.swing.JMenuItem bmpExport;
-    private javax.swing.JMenuItem bmpResave;
     private javax.swing.JLabel consoleLabel;
     private javax.swing.JMenu editMenu;
     private javax.swing.JMenu exportMenu;
@@ -786,7 +781,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField fileMaskField;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenuItem gifExport;
-    private javax.swing.JMenuItem gifResave;
     private javax.swing.JMenuItem gtkStyle;
     private javax.swing.JCheckBox isGroupCheckbox;
     private javax.swing.JButton jButton1;
@@ -803,7 +797,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JScrollPane jScrollPane1;
@@ -812,7 +805,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField2;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JMenuItem jpegExport;
-    private javax.swing.JMenuItem jpegResave;
     private javax.swing.JTable layerTable;
     private javax.swing.JCheckBox maskCheckbox;
     private javax.swing.JMenuItem metalStyle;
@@ -821,13 +813,10 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem openButton;
     private javax.swing.JButton openFilesButon;
     private javax.swing.JMenuItem pngExport;
-    private javax.swing.JMenuItem pngResave;
     private javax.swing.JButton selectFileButton;
     private javax.swing.JButton showLayersButton;
     private javax.swing.JMenuItem wbmpExport;
-    private javax.swing.JMenuItem wbmpResave;
-    public javax.swing.JMenuItem winStyle;
-	
+    public javax.swing.JMenuItem winStyle;            
 
     //Change window style
     private void changeStyle(String laf) {
@@ -922,8 +911,25 @@ public class MainWindow extends javax.swing.JFrame {
         exportallButton.setEnabled(true);
     }    
     
+    //Opens all files found in directory
+    private void openGroupDir(){
+        //Getting the directory with our files
+        String baseFile = baseBuffer.getAbsolutePath();  
+        if(baseFile.contains("/")) baseFile = baseFile.replaceAll("/", System.getProperty("file.separator"));
+        File baseFolder = new File(baseFile.substring(0, baseFile.lastIndexOf(System.getProperty("file.separator"))+1));
+                
+        //Filling up the open queue
+        openQueue.addAll(Arrays.asList(baseFolder.listFiles()));
+        
+        //Opening
+        ImageLoader imgLoader = new ImageLoader(openQueue);
+        Thread thr = new Thread(imgLoader);
+        thr.start();   
+        
+        exportallButton.setEnabled(true);
+    }
     
-	//NOT WORKING YET
+            
     //Opens group of files using a user-defined name mask, that is being converted to a valid regular expression before opening files
     private void openGroup(String mask, String extension){
         //Clear the map to prevent overloading, name collisions and so on. This deletes EVERYTHING that was loaded before
@@ -937,8 +943,9 @@ public class MainWindow extends javax.swing.JFrame {
         if(baseFile.contains("/")) baseFile = baseFile.replaceAll("/", "\\");
         String baseFolder = baseFile.substring(0, baseFile.lastIndexOf("\\")+1);
         
-		//Setting up a regex
+        //Next i tried to setup a regex to determine if a file matches that ugly mask user needs to enter, but it keeps not working somewhy...
         String regex = "";
+        //I have NO ide why this doesn't work. I tried literally EVERYTHING. I think i'm getting mad slowly...
         if(mask.contains("№")) {
             String regexBuffer = mask.replaceAll("№", "\\&d");
             regex = regexBuffer.replaceAll("&", "");
@@ -947,7 +954,13 @@ public class MainWindow extends javax.swing.JFrame {
         else regex = mask;
         if(extension.equals("Any")) regex += " *";
         else regex += ("."+extension.toLowerCase());
-		
+        /*
+            I tried debugging this btw.
+            When you enter the method it works just fine.
+            But when it comes to replacing № (it was $ originally) with valid \d regex symbol it completely ignores that '\' before 'd', which can be clearly seen in the debugger.
+            All '@' are being replaced as they should.
+            Am i cursed?
+        */
         conlog("Group regex mask is "+regex);
         for(File f : new File(baseFolder).listFiles()){
             String filename = f.getName().toLowerCase();
@@ -1113,12 +1126,11 @@ class ImageSaver implements Runnable {
         convs.forEach((s, c) -> {
             c.convert(format);
             int nameEnd = s.lastIndexOf(".");
-            c.save(new File(dir.getAbsolutePath() + "\\" + s.substring(nameEnd) + Conv.FORMATS.get(c.getImageFormat())));
+            c.save(new File(dir.getAbsolutePath() + "\\" + s.substring(0, nameEnd) + Conv.FORMATS.get(c.getImageFormat())));
         });
     }
     
 }
-
 
 
 
