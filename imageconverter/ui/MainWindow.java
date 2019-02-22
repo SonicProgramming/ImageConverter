@@ -628,7 +628,7 @@ public class MainWindow extends javax.swing.JFrame {
         jDialog1.setVisible(false);
         if(isGroupCheckbox.isSelected()) {
             if(allFilesCheckbox.isSelected()){
-                
+                openGroupDir();
             }
             if(maskCheckbox.isSelected()) openGroup(fileMaskField.getText(), fileFormatBox.getSelectedItem().toString());
             else openGroupLex();
