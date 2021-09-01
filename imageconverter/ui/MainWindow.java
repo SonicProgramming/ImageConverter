@@ -671,7 +671,12 @@ public class MainWindow extends javax.swing.JFrame {
         //Subtracting 25 and 30 from width and height respectively is neccesary because we want to make sure iframe's border will fit too
         if(w > jDesktopPane2.getWidth() - 25 || h > jDesktopPane2.getHeight() - 30){
             int imgDim, paneDim;
-            if(w >= h){
+            
+            // Check if image better fits horisontally or vertically in our JDesktopPane
+            double widthRatio, heightRatio;
+            widthRatio = (double)jDesktopPane2.getWidth() / w;
+            heightRatio = (double)jDesktopPane2.getHeight() / h;
+            if(widthRatio <= heightRatio){
                 imgDim = w;
                 paneDim = jDesktopPane2.getWidth() - 25;
             } else {
@@ -765,6 +770,8 @@ public class MainWindow extends javax.swing.JFrame {
         
         java.awt.EventQueue.invokeLater(() -> {
             ImageConverter.mw = new MainWindow();
+            // Fix size errors
+            ImageConverter.mw.jDialog1.pack();
             ImageConverter.mw.setVisible(true);
             conlog("Loaded");
         });
