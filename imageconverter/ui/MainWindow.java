@@ -555,9 +555,10 @@ public class MainWindow extends javax.swing.JFrame {
 
             @Override
             public String getDescription() {
-                return "Supported image formats (BMP, GIF, JPEG, PMG, WBMP)";
+                return "Supported image formats (BMP, GIF, JPEG, PNG, WBMP)";
             }
         });
+        jFileChooser1.setMultiSelectionEnabled(true);
     }                                 
 
     private void motifStyleActionPerformed(java.awt.event.ActionEvent evt) {                                           
@@ -606,9 +607,10 @@ public class MainWindow extends javax.swing.JFrame {
     }                                        
 
     private void selectFileButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                 
-        jFileChooser1.setMultiSelectionEnabled(false);
+        //jFileChooser1.setMultiSelectionEnabled(false);
         jFileChooser1.showOpenDialog(jDialog1);
         baseBuffer = jFileChooser1.getSelectedFile();
+        this.openQueue = Arrays.asList(jFileChooser1.getSelectedFiles());
         jTextField1.setText(baseBuffer.getAbsolutePath());
         isGroupCheckbox.setEnabled(true);
         openFilesButon.setEnabled(true);
@@ -871,20 +873,25 @@ public class MainWindow extends javax.swing.JFrame {
         System.out.println(text);
     }
     
-    
-    private void openSingle(){
+    // Modded it to allow multi-selection in file chooser dialog
+    // Name not change to not re-write code bc i'm too lazy to bother about old stuff
+    private void openSingle(){ // Or group
         //Clear the map to prevent overloading, name collisions and so on. This deletes EVERYTHING that was loaded before
         do loadedBuffer.clear(); 
         while(!loadedBuffer.isEmpty());
         exportallButton.setEnabled(false);
-        conlog("Opening file: " + baseBuffer.getAbsolutePath(), Color.blue);
-        try {
-            Conv c = new Conv(baseBuffer);
-            loadedBuffer.put(baseBuffer.getName(), c);
-            conlog("Opened all files", new Color(60, 220, 60, 255));
-        } catch (FileNotFoundException | UnsupportedImageFormatException ex) {
-            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        for (File file : this.openQueue) {
+            conlog("Opening file: " + file.getAbsolutePath(), Color.blue);
+            try {
+                Conv c = new Conv(file);
+                loadedBuffer.put(file.getName(), c);
+            } catch (FileNotFoundException | UnsupportedImageFormatException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        // A hacky way to not get an exception after getting a fixed size list from Arrays.asList()
+        this.openQueue = new ArrayList<>();
+        conlog("Opened all files", new Color(60, 220, 60, 255));
         exportallButton.setEnabled(false);
         afterload();
     }
